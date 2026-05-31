@@ -1,0 +1,15 @@
+services:
+  dynamodb-local:
+    image: amazon/dynamodb-local:3.3.0
+    container_name: dynamodb-local
+    # 権限ないとSQLite使えないため
+    user: root
+    ports:
+      - "127.0.0.1:8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+    working_dir: /home/dynamodblocal
+
+volumes:
+  dynamodb-data:
