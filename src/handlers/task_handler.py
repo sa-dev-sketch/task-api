@@ -1,3 +1,4 @@
+import os
 import json
 import boto3
 import uuid
@@ -10,7 +11,9 @@ dynamodb = boto3.resource(
     aws_access_key_id='dummy', # DynamoDB Local用に一時的に記述。後で消す
     aws_secret_access_key='dummy' # DynamoDB Local用に一時的に記述。後で消す
 )
-table = dynamodb.Table('Tasks')
+TABLE_NAME = os.environ.get('TABLE_NAME', 'Tasks')
+table = dynamodb.Table(TABLE_NAME)
+
 
 def handler(event, context):
     http_method = event.get('httpMethod')
