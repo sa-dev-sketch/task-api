@@ -4,12 +4,11 @@ import boto3
 import uuid
 from datetime import datetime, timezone
 
+local_endpoint_url = os.environ.get('DYNAMODB_ENDPOINT_URL')
 dynamodb = boto3.resource(
     'dynamodb',
-    endpoint_url='http://localhost:8000', # DynamoDB Local用に一時的に記述。後で消す
-    region_name='ap-northeast-1', # DynamoDB Local用に一時的に記述。後で消す
-    aws_access_key_id='dummy', # DynamoDB Local用に一時的に記述。後で消す
-    aws_secret_access_key='dummy' # DynamoDB Local用に一時的に記述。後で消す
+    endpoint_url=local_endpoint_url, # ローカルの場合はDynamoDB Localコンテナに繋ぐ
+    region_name=os.environ.get('AWS_REGION', 'ap-northeast-3') 
 )
 TABLE_NAME = os.environ.get('TABLE_NAME', 'Tasks')
 table = dynamodb.Table(TABLE_NAME)

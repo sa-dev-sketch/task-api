@@ -3,4 +3,7 @@ __pycache__/
 *.pyo
 .env
 .terraform/
+tests/
 lambda.zip
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
