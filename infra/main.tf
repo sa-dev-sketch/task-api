@@ -14,3 +14,9 @@ terraform {
 provider "aws" {
   region  = "ap-northeast-3"
 }
+
+
+# GitHub Actionsからのplan失敗テスト用
+resource "aws_vpc" "intentional_failure" {
+  cidr_block = "これは絶対に無効なCIDR"
+}
