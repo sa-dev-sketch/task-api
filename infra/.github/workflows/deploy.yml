@@ -1,0 +1,45 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # OIDCトークンの取得
+  id-token: write
+  # リポジトリのコード読み取り
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-24.04
+    steps:
+      # Checkout（リポジトリのコードをActionsの実行環境に持ってくる）
+      - name: Checkout Repositry
+        uses: actions/checkout@v7
+
+      # AWS認証設定（OIDCでロールを引き受ける）
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::893946677925:role/task-api-github-actions-role
+          aws-region: ap-northeast-3
+
+      # 実行環境にterraformコマンドを入れる
+      - name: Setup Terrform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.15.5"
+
+      - name: Terraform Init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: infra
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: infra
+        run: terraform apply -auto-approve
