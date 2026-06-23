@@ -13,5 +13,4 @@ terraform {
 
 provider "aws" {
   region  = "ap-northeast-3"
-  profile = "task-api-sso-profile"
 }
