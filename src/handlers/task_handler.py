@@ -4,21 +4,21 @@ import boto3
 import uuid
 from datetime import datetime, timezone
 
-local_endpoint_url = os.environ.get('DYNAMODB_ENDPOINT_URL')
-dynamodb = boto3.resource(
-    'dynamodb',
-    endpoint_url=local_endpoint_url, # ローカルの場合はDynamoDB Localコンテナに繋ぐ
-    region_name=os.environ.get('AWS_REGION', 'ap-northeast-3') 
-)
-TABLE_NAME = os.environ.get('TABLE_NAME', 'Tasks')
-table = dynamodb.Table(TABLE_NAME)
+def get_table():
+    local_endpoint_url = os.environ.get('DYNAMODB_ENDPOINT_URL')
+    dynamodb = boto3.resource(
+        'dynamodb',
+        endpoint_url=local_endpoint_url, # ローカルの場合はDynamoDB Localコンテナに繋ぐ
+        region_name=os.environ.get('AWS_REGION', 'ap-northeast-3')
+    )
+    TABLE_NAME = os.environ.get('TABLE_NAME', 'Tasks')
+    return dynamodb.Table(TABLE_NAME)
 
 
 def handler(event, context):
-    http_method = event.get('httpMethod')
-    path = event.get('path')
-    path_parameters = event.get('pathParameters') or {}
-    task_id = path_parameters.get('id')
+    http_method = event.get('requestContext', {}).get('http', {}).get('method')
+    path = event.get('requestContext', {}).get('http', {}).get('path')
+    task_id = event.get('pathParameters', {}).get('id')
 
     if http_method == 'GET' and path == '/tasks':
         return get_tasks()
@@ -45,6 +45,7 @@ def handler(event, context):
 
 
 def get_tasks():
+    table = get_table()
     response = table.scan()
     return {
         'statusCode': 200,
@@ -60,6 +61,7 @@ def create_task(body):
         'created_at': datetime.now(timezone.utc).isoformat(),
         'updated_at': datetime.now(timezone.utc).isoformat()
     }
+    table = get_table()
     table.put_item(Item=task)
     return {
         'statusCode': 201,
@@ -68,6 +70,7 @@ def create_task(body):
 
 
 def get_task(task_id):
+    table = get_table()
     response = table.get_item(Key={'task_id': task_id})
     item = response.get('Item')
 
@@ -83,6 +86,7 @@ def get_task(task_id):
 
 
 def update_task(task_id, body):
+    table = get_table()
     response = table.update_item(
         Key={'task_id': task_id},
         UpdateExpression='SET title = :title, #s = :status, updated_at = :updated_at',
@@ -101,6 +105,7 @@ def update_task(task_id, body):
 
 
 def delete_task(task_id):
+    table = get_table()
     table.delete_item(Key={'task_id': task_id})
     return {
         'statusCode': 204,
