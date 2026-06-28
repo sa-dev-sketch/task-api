@@ -32,6 +32,14 @@ jobs:
         with:
           terraform_version: "1.15.5"
 
+      # Pythonライブラリを入れる
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      # 単体テスト実施
+      - name: Run Tests
+        run: python3 -m pytest tests/test_task_handler.py -v
+
       - name: Terraform Init
         working-directory: infra
         run: terraform init
