@@ -1,9 +1,12 @@
 name: Deploy to AWS
 
 on:
-  push:
-    branches:
-      - main
+  # 手動実行
+  workflow_dispatch:
+  # # pushによる自動applyはコスト管理のため無効化
+  # push:
+  #   branches:
+  #     - main
 
 permissions:
   # OIDCトークンの取得
